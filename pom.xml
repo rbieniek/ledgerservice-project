@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.0.1</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+  <groupId>org.ledgerservice</groupId>
+  <artifactId>ledgerservice-project</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>ledgerservice-project</name>
+  <description>Demo project for Spring Boot</description>
+  <properties>
+    <java.version>17</java.version>
+  </properties>
+
+    <licenses>
+        <license>
+        <name>The Apache Software License, Version 2.0</name>
+        <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses> 
+
+    <developers>
+        <developer>
+            <name>Rainer Bieniek</name>
+            <email>rainer.bieniek@cumulus-cloud-consulting.de</email>
+            <organization>Cumulus Cloud Software und Consulting GmbH &amp; Co KG</organization>
+        </developer>
+    </developers>
+
+
+  <modules>
+   <module>spring-support</module>
+   <module>masterdata-service</module>
+  </modules>
+ 
+  <dependencyManagement>
+   <dependency>
+    <groupId>org.ledgerservice</groupId>
+    <artifactId>spring-support</artifactId>
+    <version>${project.version}</version>
+   </dependency>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.7</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <!-- attached to Maven test phase -->
+                        <execution>
+                            <id>report</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+      <plugin>
+       <groupId>io.github.git-commit-id</groupId>
+       <artifactId>git-commit-id-maven-plugin</artifactId>
+<version>5.0.0</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
+     </plugin>
+    </pluginManagement>
+  </build>
+
+</project>
+
