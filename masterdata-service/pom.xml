@@ -9,9 +9,9 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.ledgerservice</groupId>
-  <artifactId>spring-support</artifactId>
+  <artifactId>masterdata-service</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>spring-support</name>
+  <name>masterdata-service</name>
   <description>Spring support libraries</description>
     <properties>
     <spring-cloud.version>2022.0.0</spring-cloud.version>

@@ -40,15 +40,18 @@
   </modules>
  
   <dependencyManagement>
-   <dependency>
-    <groupId>org.ledgerservice</groupId>
-    <artifactId>spring-support</artifactId>
-    <version>${project.version}</version>
-   </dependency>
+   <dependencies>
+     <dependency>
+      <groupId>org.ledgerservice</groupId>
+      <artifactId>spring-support</artifactId>
+      <version>${project.version}</version>
+     </dependency>
+   </dependencies>
   </dependencyManagement>
 
   <build>
     <pluginManagement>
+      <plugins>
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
@@ -92,6 +95,7 @@
                     <commitIdGenerationMode>full</commitIdGenerationMode>
                 </configuration>
      </plugin>
+     </plugins>
     </pluginManagement>
   </build>
 
