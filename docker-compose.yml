@@ -1,0 +1,132 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:14.5
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: example
+    volumes:
+      - ./run/stack-files/postgres/db:/var/lib/postgresql/data
+      - ./stack-files/postgres:/docker-entrypoint-initdb.d
+
+  mongo:
+    image: mongo:6.0.1
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - ./run/stack-files/mongo/db:/data/db
+
+  mongo-express:
+    image: mongo-express:0.54.0
+    restart: always
+    ports:
+      - "8082:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+    depends_on:
+      - mongo
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:19.0.1
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres/keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=keycloak
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+      - KC_HOSTNAME=localhost
+    ports:
+      - "8081:8080"
+    entrypoint:
+      - /opt/keycloak/bin/kc.sh
+      - start-dev
+      - "--import-realm"
+    volumes:
+      - ./run/stack-files/keycloak/export:/data/export
+      - ./stack-files/keycloak/import:/opt/keycloak/data/import
+    depends_on:
+      - postgres
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2022-09-01T23-53-36Z.fips
+    ports:
+      - "9100:9000"
+      - "9101:9001"
+      - "34201:34201"
+    command: "server --console-address ':34201' /data"
+    environment:
+      MINIO_ACCESS_KEY: "AKIAIOSFODNN7EXAMPLE"
+      MINIO_SECRET_KEY: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+    volumes:
+      - ./run/stack-files/minio/data:/data
+
+  opensearch-v2:
+    image: opensearchproject/opensearch:2.4.1
+    environment:
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    ports:
+      - "9200:9200"
+      - "9600:9600" # required for Performance Analyzer
+    volumes:
+      - ./run/stack-files/opensearch-v2/data:/usr/share/opensearch/data
+
+  opensearch-dashboards-v2:
+    image: opensearchproject/opensearch-dashboards:2.4.1
+    environment:
+      OPENSEARCH_HOSTS: '["https://opensearch-v2:9200"]'
+    ports:
+      - "5601:5601"
+    depends_on:
+      - opensearch-v2
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.41.0
+    ports:
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+      - "14250:14250"
+      - "14268:14268"
+      - "14269:14269"
+      - "9411:9411"
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=elasticsearch
+      - ES_SERVER_URLS=https://opensearch-v2:9200
+    depends_on:
+      - opensearch-v2
+
+  influxdb:
+    image: influxdb:2.6.1
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: "setup"
+      DOCKER_INFLUXDB_INIT_USERNAME: "influx-user"
+      DOCKER_INFLUXDB_INIT_PASSWORD: "influx-user"
+      DOCKER_INFLUXDB_INIT_ORG: "ledgerservice-org"
+      DOCKER_INFLUXDB_INIT_BUCKET: "ledgerservice-bucket"
+    volumes:
+      - ./run/stack-files/influxdb2:/var/lib/influxdb2
+      - ./stack-files/influxdb2:/etc/influxdb2

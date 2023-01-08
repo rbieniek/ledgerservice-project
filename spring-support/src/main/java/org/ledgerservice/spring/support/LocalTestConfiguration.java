@@ -19,7 +19,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * License-Filename: LICENSE
  */
-package de.porsche.oso.bdi.spring.support;
+package org.ledgerservice.spring.support;
 
 import org.springframework.context.annotation.Configuration;
 

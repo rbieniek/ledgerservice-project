@@ -13,21 +13,25 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>masterdata-service</name>
   <description>Spring support libraries</description>
-    <properties>
+  <properties>
     <spring-cloud.version>2022.0.0</spring-cloud.version>
     <testcontainers.version>1.17.6</testcontainers.version>
   </properties>
 
-    <dependencies>
-        <dependency>
-          <groupId>org.ledgerservice</groupId>
-          <artifactId>spring-support</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
+  <dependencies>
+    <dependency>
+      <groupId>org.ledgerservice</groupId>
+      <artifactId>spring-support</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.ledgerservice</groupId>
+      <artifactId>security-support</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
@@ -66,7 +70,7 @@
     </dependency>
     <dependency>
       <groupId>io.micrometer</groupId>
-      <artifactId>micrometer-tracing-bridge-brave</artifactId>
+      <artifactId>micrometer-tracing-bridge-otel</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -143,7 +147,7 @@
       <scope>test</scope>
     </dependency>
 
-    </dependencies>
+  </dependencies>
 
   <dependencyManagement>
     <dependencies>
@@ -165,8 +169,8 @@
   </dependencyManagement>
 
 
-    <build>
-        <plugins>
+  <build>
+    <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -180,30 +184,30 @@
         </configuration>
       </plugin>
 
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-              <groupId>io.github.git-commit-id</groupId>
-              <artifactId>git-commit-id-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
- 
-    <profiles>
-     <profile>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
       <id>native</id>
       <build>
-       <plugins>
-      <plugin>
-        <groupId>org.graalvm.buildtools</groupId>
-        <artifactId>native-maven-plugin</artifactId>
-      </plugin>
-       </plugins>
+        <plugins>
+          <plugin>
+            <groupId>org.graalvm.buildtools</groupId>
+            <artifactId>native-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
       </build>
-     </profile>
-    </profiles>
+    </profile>
+  </profiles>
 
 </project>
 
