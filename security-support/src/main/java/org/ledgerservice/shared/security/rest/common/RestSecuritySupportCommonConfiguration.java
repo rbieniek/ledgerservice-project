@@ -1,9 +1,9 @@
 package org.ledgerservice.shared.security.rest.common;
 
 import org.ledgerservice.shared.security.rest.keycloak.ReactiveJwtKeycloakAuthenticationConverter;
-import de.porsche.oso.dp.spring.support.LocalTestConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.ledgerservice.spring.support.LocalTestConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.context.annotation.Bean;

@@ -1,6 +1,6 @@
 package org.ledgerservice.shared.security.rest.keycloak;
 
-import de.porsche.oso.dp.spring.support.LocalTestConfiguration;
+import org.ledgerservice.spring.support.LocalTestConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;

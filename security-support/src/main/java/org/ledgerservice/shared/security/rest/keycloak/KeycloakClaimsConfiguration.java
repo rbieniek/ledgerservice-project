@@ -1,6 +1,6 @@
 package org.ledgerservice.shared.security.rest.keycloak;
 
-import de.porsche.oso.dp.spring.support.LocalTestConfiguration;
+import org.ledgerservice.spring.support.LocalTestConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;

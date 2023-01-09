@@ -2,19 +2,13 @@ package org.ledgerservice.shared.security.rest.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.ledgerservice.shared.security.TestContainerImages;
-import org.ledgerservice.shared.security.rest.common.RestSecuritySupportCommonConfigurationTest.RestSecuritySupportCommonConfigurationTestConfiguration;
-import org.ledgerservice.shared.security.rest.common.RestSecuritySupportCommonConfigurationTest.RestSecuritySupportCommonConfigurationTestInitializer;
-import org.ledgerservice.shared.security.rest.keycloak.ReactiveJwtKeycloakAuthenticationConverter;
-import org.ledgerservice.shared.security.rest.keycloak.ReactiveKeycloakAuthenticationConverterTest.TokenResponse;
-import de.porsche.oso.dp.spring.support.LocalTestConfiguration;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import java.net.URI;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.CacheControl;
 import okhttp3.FormBody;
@@ -26,6 +20,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.ledgerservice.shared.security.TestContainerImages;
+import org.ledgerservice.shared.security.rest.common.RestSecuritySupportCommonConfigurationTest.RestSecuritySupportCommonConfigurationTestConfiguration;
+import org.ledgerservice.shared.security.rest.common.RestSecuritySupportCommonConfigurationTest.RestSecuritySupportCommonConfigurationTestInitializer;
+import org.ledgerservice.shared.security.rest.keycloak.ReactiveJwtKeycloakAuthenticationConverter;
+import org.ledgerservice.shared.security.rest.keycloak.ReactiveKeycloakAuthenticationConverterTest.TokenResponse;
+import org.ledgerservice.spring.support.LocalTestConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -255,7 +255,7 @@ public class RestSecuritySupportCommonConfigurationTest {
           Assertions.assertThat(response.getStatusCode())
             .isEqualTo(HttpStatus.OK);
           return true;
-        } catch(Throwable throwable) {
+        } catch (Throwable throwable) {
           log.error("Assertion failed", throwable);
 
           return false;
@@ -279,7 +279,7 @@ public class RestSecuritySupportCommonConfigurationTest {
           Assertions.assertThat(response.getStatusCode())
             .isEqualTo(HttpStatus.OK);
           return true;
-        } catch(Throwable throwable) {
+        } catch (Throwable throwable) {
           log.error("Assertion failed", throwable);
 
           return false;
