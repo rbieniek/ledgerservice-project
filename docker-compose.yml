@@ -25,8 +25,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - ./run/stack-files/mongo/db:/data/db
+      - ./stack-files/mongodb:/docker-entrypoint-initdb.d
     healthcheck:
-      test: [ "CMD-SHELL", "echo 'db.runCommand({serverStatus:1}).ok' | mongo admin -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --quiet | grep 1" ]
+      test: [ "CMD-SHELL", "echo 'db.stats().ok' | mongosh -u root -p example --quiet" ]
       interval: 10s
       timeout: 10s
       retries: 3
@@ -120,7 +121,6 @@ services:
       retries: 3
       start_period: 30s
 
-
   jaeger:
     image: jaegertracing/all-in-one:1.41.0
     ports:
@@ -165,3 +165,36 @@ services:
     volumes:
       - ./run/stack-files/prometheus/data:/prometheus
       - ./stack-files/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  graylog:
+    image: graylog/graylog:5.0
+    environment:
+      # CHANGE ME (must be at least 16 characters)!
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      # Password: admin
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
+      - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
+      - MONGODB_URI=mongodb://graylog:gray123@mongo:27017/graylog
+    ports:
+      # Graylog web interface and REST API
+      - 9000:9000
+      # Syslog TCP
+      - 1514:1514
+      # Syslog UDP
+      - 1514:1514/udp
+      # GELF TCP
+      - 12201:12201
+      # GELF UDP
+      - 12201:12201/udp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      mongo:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
