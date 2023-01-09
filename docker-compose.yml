@@ -10,6 +10,11 @@ services:
     volumes:
       - ./run/stack-files/postgres/db:/var/lib/postgresql/data
       - ./stack-files/postgres:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mongo:
     image: mongo:6.0.1
@@ -20,21 +25,28 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - ./run/stack-files/mongo/db:/data/db
+    healthcheck:
+      test: [ "CMD-SHELL", "echo 'db.runCommand({serverStatus:1}).ok' | mongo admin -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --quiet | grep 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
-  mongo-express:
-    image: mongo-express:0.54.0
-    restart: always
-    ports:
-      - "8082:8081"
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
-    depends_on:
-      - mongo
+# Mongo expres 0.54.0 does not support mongodb 6.x
+#  mongo-express:
+#    image: mongo-express:0.54.0
+#    restart: always
+#    ports:
+#      - "8082:8081"
+#    environment:
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+ #     ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+ #   depends_on:
+ #     - mongo
 
   keycloak:
-    image: quay.io/keycloak/keycloak:19.0.1
+    image: quay.io/keycloak/keycloak:20.0.2
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
@@ -55,7 +67,8 @@ services:
       - ./run/stack-files/keycloak/export:/data/export
       - ./stack-files/keycloak/import:/opt/keycloak/data/import
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   minio:
     image: quay.io/minio/minio:RELEASE.2022-09-01T23-53-36Z.fips
@@ -70,10 +83,12 @@ services:
     volumes:
       - ./run/stack-files/minio/data:/data
 
-  opensearch-v2:
-    image: opensearchproject/opensearch:2.4.1
+  elasticsearch:
+    image: elasticsearch:7.17.8
     environment:
       - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
         soft: -1
@@ -83,18 +98,16 @@ services:
         hard: 65536
     ports:
       - "9200:9200"
-      - "9600:9600" # required for Performance Analyzer
+      - "9300:9300" # required for Performance Analyzer
     volumes:
-      - ./run/stack-files/opensearch-v2/data:/usr/share/opensearch/data
+      - ./run/stack-files/elasticsearch/data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
-  opensearch-dashboards-v2:
-    image: opensearchproject/opensearch-dashboards:2.4.1
-    environment:
-      OPENSEARCH_HOSTS: '["https://opensearch-v2:9200"]'
-    ports:
-      - "5601:5601"
-    depends_on:
-      - opensearch-v2
 
   jaeger:
     image: jaegertracing/all-in-one:1.41.0
@@ -113,20 +126,30 @@ services:
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
       - COLLECTOR_OTLP_ENABLED=true
       - SPAN_STORAGE_TYPE=elasticsearch
-      - ES_SERVER_URLS=https://opensearch-v2:9200
+      - ES_SERVER_URLS=http://elasticsearch:9200
+    restart: on-failure
     depends_on:
-      - opensearch-v2
+      elasticsearch:
+        condition: service_healthy
 
   influxdb:
     image: influxdb:2.6.1
     ports:
       - "8086:8086"
-    environment:
-      DOCKER_INFLUXDB_INIT_MODE: "setup"
-      DOCKER_INFLUXDB_INIT_USERNAME: "influx-user"
-      DOCKER_INFLUXDB_INIT_PASSWORD: "influx-user"
-      DOCKER_INFLUXDB_INIT_ORG: "ledgerservice-org"
-      DOCKER_INFLUXDB_INIT_BUCKET: "ledgerservice-bucket"
+#    environment:
+#      DOCKER_INFLUXDB_INIT_MODE: "setup"
+#      DOCKER_INFLUXDB_INIT_USERNAME: "influx-user"
+#      DOCKER_INFLUXDB_INIT_PASSWORD: "influx-user"
+#      DOCKER_INFLUXDB_INIT_ORG: "ledgerservice-org"
+#      DOCKER_INFLUXDB_INIT_BUCKET: "ledgerservice-bucket"
     volumes:
       - ./run/stack-files/influxdb2:/var/lib/influxdb2
       - ./stack-files/influxdb2:/etc/influxdb2
+
+  prometheus:
+    image: prom/prometheus:v2.41.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./run/stack-files/prometheus/data:/prometheus
+      - ./stack-files/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
