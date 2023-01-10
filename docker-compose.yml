@@ -46,6 +46,24 @@ services:
  #   depends_on:
  #     - mongo
 
+  rabbitmq:
+    image: rabbitmq:3.9.27
+    volumes:
+      - ./run/stack-files/rabbitmq/data:/var/lib/rabbitmq
+      - ./run/stack-files/rabbitmq/work:/work
+    ports:
+      - "5671:5671"
+      - "5672:5672"
+      - "5551:5551"
+      - "5552:5552"
+      - "15671:15671"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 30s
+      timeout: 30s
+      retries: 10
+
   keycloak:
     image: quay.io/keycloak/keycloak:20.0.2
     environment:
@@ -97,7 +115,7 @@ services:
       start_period: 30s
 
   elasticsearch:
-    image: elasticsearch:7.17.8
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
@@ -140,6 +158,12 @@ services:
       - SPAN_STORAGE_TYPE=elasticsearch
       - ES_SERVER_URLS=http://elasticsearch:9200
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:16686"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -174,8 +198,8 @@ services:
       # Password: admin
       - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
       - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
-      - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
-      - MONGODB_URI=mongodb://graylog:gray123@mongo:27017/graylog
+      - GRAYLOG_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - GRAYLOG_MONGODB_URI=mongodb://graylog:gray123@mongo:27017/graylog
     ports:
       # Graylog web interface and REST API
       - 9000:9000
@@ -187,6 +211,7 @@ services:
       - 12201:12201
       # GELF UDP
       - 12201:12201/udp
+    restart: on-failure
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000"]
       interval: 30s
