@@ -1,0 +1,22 @@
+spring:
+  data:
+    mongodb:
+      uri: "mongodb://masterdata:master123@localhost:27017/masterdata"
+  rabbitmq:
+    host: localhost
+    port: 5672
+
+management:
+  influx:
+    metrics:
+      export:
+        api-version: v2
+        auto-create-db: true
+        bucket: ledgerservice-bucket
+        user-name: influx-user
+        password: influx-password
+        org: ledgerservice-org
+        uri: "http://localhost:8086"
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
