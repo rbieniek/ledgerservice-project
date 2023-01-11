@@ -21,8 +21,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.ledgerservice.shared.security.TestContainerImages;
-import org.ledgerservice.shared.security.rest.common.RestSecuritySupportCommonConfigurationTest.RestSecuritySupportCommonConfigurationTestConfiguration;
-import org.ledgerservice.shared.security.rest.common.RestSecuritySupportCommonConfigurationTest.RestSecuritySupportCommonConfigurationTestInitializer;
+import org.ledgerservice.shared.security.rest.common.RestSecuritySupportCommonConfigurationMultiTenantTest.RestSecuritySupportCommonConfigurationTestConfiguration;
+import org.ledgerservice.shared.security.rest.common.RestSecuritySupportCommonConfigurationMultiTenantTest.RestSecuritySupportCommonConfigurationTestInitializer;
 import org.ledgerservice.shared.security.rest.keycloak.ReactiveJwtKeycloakAuthenticationConverter;
 import org.ledgerservice.shared.security.rest.keycloak.ReactiveKeycloakAuthenticationConverterTest.TokenResponse;
 import org.ledgerservice.spring.support.LocalTestConfiguration;
@@ -63,7 +63,7 @@ import reactor.test.StepVerifier;
   initializers = RestSecuritySupportCommonConfigurationTestInitializer.class)
 @Testcontainers(disabledWithoutDocker = true)
 @Slf4j
-public class RestSecuritySupportCommonConfigurationTest {
+public class RestSecuritySupportCommonConfigurationMultiTenantTest {
 
   private static final String CLIENT_ID = "scan-request-client";
   private static final String CLIENT_SECRET = "12345678";
@@ -364,6 +364,7 @@ public class RestSecuritySupportCommonConfigurationTest {
     public void initialize(ConfigurableApplicationContext applicationContext) {
       TestPropertyValues.of(
         "app.rest.security.common.required-role=scan-request",
+        String.format("app.rest.security.common.api-path=%s", DATAPLATFORM_PATH),
         String.format(
           "app.rest.security.common.multi-tenancy-jwks-uri.0=http://%s:%d/realms/dataplatform-internal",
           KEYCLOAK_CONTAINER.getHost(),

@@ -1,11 +1,12 @@
 package org.ledgerservice.shared.security.rest.common;
 
-import org.ledgerservice.shared.security.rest.keycloak.ReactiveJwtKeycloakAuthenticationConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.ledgerservice.shared.security.rest.keycloak.ReactiveJwtKeycloakAuthenticationConverter;
 import org.ledgerservice.spring.support.LocalTestConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,8 @@ import reactor.core.publisher.Mono;
 @ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = LocalTestConfiguration.class))
 @Slf4j
 public class RestSecuritySupportCommonConfiguration {
+
+  public static final int CUSTOM_CHAIN_FIRST_ORDER_VALUE = 10;
 
   @Bean
   @Autowired
@@ -61,12 +64,13 @@ public class RestSecuritySupportCommonConfiguration {
   }
 
   @Bean
+  @ConditionalOnProperty(prefix = RestSecuritySupportCommonConfigurationProperties.PREFIX, name = "multi-tenancy-jwks-uri.0")
   @Autowired
   @Order(3)
-  public SecurityWebFilterChain apiEndpointSecurity(final ServerHttpSecurity http,
+  public SecurityWebFilterChain apiEndpointMultiTenantSecurity(final ServerHttpSecurity http,
     final ReactiveJwtKeycloakAuthenticationConverter authenticationConverter,
     final RestSecuritySupportCommonConfigurationProperties configurationProperties) {
-    log.info("Setting up API ReST endpoint security");
+    log.info("Setting up API ReST endpoint multi-tenant security");
 
     final TrustedIssuerJwtAuthenticationManagerResolver authenticationManagerResolver
       = new TrustedIssuerJwtAuthenticationManagerResolver();
@@ -79,7 +83,7 @@ public class RestSecuritySupportCommonConfiguration {
     http
       .csrf(CsrfSpec::disable)
       .authorizeExchange(exchanges -> exchanges
-        .pathMatchers("/dataplatform/**")
+        .pathMatchers(configurationProperties.getApiPath())
         .hasAuthority(roleToRealmRole(configurationProperties.getRequiredRole()))
       )
       .oauth2ResourceServer(oauth2 -> oauth2
@@ -87,6 +91,31 @@ public class RestSecuritySupportCommonConfiguration {
           new JwtIssuerReactiveAuthenticationManagerResolver(authenticationManagerResolver))
       );
     // @formatter:on
+
+    return http.build();
+  }
+
+  /*
+  spring.security.oauth2.resourceserver.jwt.issuerUri
+   */
+  @Bean
+  @ConditionalOnProperty(value = "spring.security.oauth2.resourceserver.jwt.issuer-uri")
+  @Autowired
+  @Order(4)
+  public SecurityWebFilterChain apiEndpointSingleTenantSecurity(final ServerHttpSecurity http,
+    final ReactiveJwtKeycloakAuthenticationConverter grantedAuthorityConverter,
+    final RestSecuritySupportCommonConfigurationProperties configurationProperties) {
+    log.info("Setting up API ReST endpoint single-tenant security");
+
+    // @formatter:off
+    http
+      .csrf(CsrfSpec::disable)
+      .authorizeExchange(exchanges -> exchanges
+        .pathMatchers(configurationProperties.getApiPath())
+        .hasAuthority(roleToRealmRole(configurationProperties.getRequiredRole()))
+      )
+      .oauth2ResourceServer(oauth2 -> oauth2
+        .jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor(grantedAuthorityConverter))));
     // @formatter:on
 
     return http.build();

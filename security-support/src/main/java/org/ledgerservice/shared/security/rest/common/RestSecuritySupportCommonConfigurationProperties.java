@@ -1,9 +1,9 @@
 package org.ledgerservice.shared.security.rest.common;
 
-import java.util.Set;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,18 +13,22 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 @Component
-@ConfigurationProperties(prefix = "app.rest.security.common")
+@ConfigurationProperties(prefix = RestSecuritySupportCommonConfigurationProperties.PREFIX)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Validated
 public class RestSecuritySupportCommonConfigurationProperties {
+  public static final String PREFIX = "app.rest.security.common";
+
   @NotNull
   @NotEmpty
   private String requiredRole;
 
+  private Set<@NotBlank String> multiTenancyJwksUri;
+
   @NotNull
   @NotEmpty
-  private Set<@NotBlank String> multiTenancyJwksUri;
+  private String apiPath;
 }
