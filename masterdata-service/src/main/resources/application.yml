@@ -1,6 +1,10 @@
 spring:
   application:
     name: masterdata
+  graphql:
+    graphiql:
+      enabled: true
+      path: /graphql
 
 management:
   endpoint:
@@ -23,4 +27,9 @@ management:
       base-path: /actuator
       exposure:
         include: "*"
+app:
+  rest:
+    security:
+      common:
+        api-path: /graphql
 
