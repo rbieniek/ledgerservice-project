@@ -32,4 +32,5 @@ app:
     security:
       common:
         api-path: /graphql
+        required-role: masterdata-access
 
