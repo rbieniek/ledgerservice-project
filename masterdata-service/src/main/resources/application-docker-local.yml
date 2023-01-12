@@ -5,6 +5,11 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/ledgerservice-external/protocol/openid-connect/certs
 
 management:
   influx:
