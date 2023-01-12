@@ -172,13 +172,13 @@ services:
     image: influxdb:2.6.1
     ports:
       - "8086:8086"
-    environment:
-      DOCKER_INFLUXDB_INIT_MODE: "setup"
-      DOCKER_INFLUXDB_INIT_USERNAME: "influx-user"
-      DOCKER_INFLUXDB_INIT_PASSWORD: "influx-password"
-      DOCKER_INFLUXDB_INIT_ORG: "ledgerservice-org"
-      DOCKER_INFLUXDB_INIT_BUCKET: "ledgerservice-bucket"
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: "2b0c2328c5a88731cef2dfbf8ac054e7a3792a43a20a931cb7595fef68105d55"
+#    environment:
+#      DOCKER_INFLUXDB_INIT_MODE: "setup"
+#      DOCKER_INFLUXDB_INIT_USERNAME: "influx-user"
+#      DOCKER_INFLUXDB_INIT_PASSWORD: "influx-password"
+#      DOCKER_INFLUXDB_INIT_ORG: "ledgerservice-org"
+#      DOCKER_INFLUXDB_INIT_BUCKET: "ledgerservice-bucket"
+#      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: "2b0c2328c5a88731cef2dfbf8ac054e7a3792a43a20a931cb7595fef68105d55"
     volumes:
       - ./run/stack-files/influxdb2:/var/lib/influxdb2
       - ./stack-files/influxdb2:/etc/influxdb2

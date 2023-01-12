@@ -11,13 +11,9 @@ management:
     metrics:
       export:
         api-version: v2
-        auto-create-db: true
         bucket: ledgerservice-bucket
-        user-name: influx-user
-        password: influx-password
         org: ledgerservice-org
         uri: "http://localhost:8086"
-        db: ledgerservice-db
         token: 2b0c2328c5a88731cef2dfbf8ac054e7a3792a43a20a931cb7595fef68105d55
   zipkin:
     tracing:
